@@ -17,14 +17,41 @@ use models::*;
 
 use iron::prelude::Chain;
 use iron::Iron;
-use logger::Logger;
 use router::Router;
 use uuid::Uuid;
 
+struct LoggerBefore{}
+
+impl LoggerBefore{
+    fn new() -> LoggerBefore{
+        LoggerBefore{}
+    }
+}
+
+impl iron::middleware::BeforeMiddleware for LoggerBefore{
+    fn before(&self, req: &mut iron::Request) -> iron::IronResult<()>{
+        println!("----->logger_before: {:?}", req);
+        Ok(())
+    }
+}
+
+struct LoggerAfter{}
+
+impl LoggerAfter{
+    fn new() -> LoggerAfter{
+        LoggerAfter{}
+    }
+}
+
+impl iron::middleware::AfterMiddleware for LoggerAfter{
+    fn after(&self, _: &mut iron::Request, res: iron::Response) -> iron::IronResult<iron::Response>{
+        println!("------>logger_after: {:?}", res);
+        Ok(res)
+    }
+}
 
 fn main() {
     env_logger::init();
-    let (logger_before, logger_after) = Logger::new(None);
 
     let mut db = Database::new();
     let p = Post::new(
@@ -54,9 +81,9 @@ fn main() {
     router.get("/post/:id", handlers.post, "post");
 
     let mut chain = Chain::new(router);
-    chain.link_before(logger_before);
+    chain.link_before(LoggerBefore::new());
     chain.link_after(json_content_middleware);
-    chain.link_after(logger_after);
+    chain.link_after(LoggerAfter::new());
 
-    Iron::new(chain).http("localhost:8000");
+    Iron::new(chain).http("localhost:8000").expect("Unable to start server");
 }
