@@ -6,12 +6,12 @@ extern crate piston;
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
-use piston::input::{
-    Button, Key, PressEvent, ReleaseEvent, RenderEvent, UpdateArgs, UpdateEvent,
-};
+use piston::input::{Button, Key, PressEvent, ReleaseEvent, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::RenderArgs;
 use piston::WindowSettings;
 use std::process;
+
+const SPEED: i32 = 3;
 
 pub struct App {
     gl: GlGraphics,
@@ -61,12 +61,12 @@ impl App {
         if (self.left_vel == 1 && self.left_pos < 291)
             || (self.left_vel == -1 && self.left_pos >= 1)
         {
-            self.left_pos += self.left_vel;
+            self.left_pos += self.left_vel * SPEED;
         }
         if (self.right_vel == 1 && self.right_pos < 291)
             || (self.right_vel == -1 && self.right_pos >= 1)
         {
-            self.right_pos += self.right_vel;
+            self.right_pos += self.right_vel * SPEED;
         }
         self.ball_x += self.vel_x;
         if self.ball_x > 502 {
